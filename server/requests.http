@@ -1,0 +1,35 @@
+### Vars
+
+@baseUrl = http://localhost:3400
+
+### Root
+GET {{baseUrl}}/
+
+###
+# @name login
+POST {{baseUrl}}/auth/signin
+Content-Type: application/json
+
+{
+    "email": "paul@paul.com",
+    "password": "Parol4!"
+}
+
+###
+@authToken = {{login.response.body.access_token}}
+
+### List all users
+GET {{baseUrl}}/users
+
+### Create a new user
+POST {{baseUrl}}/users
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+    "email": "paul@paul.com",
+    "password": "Parol4!",
+    "firstName": "Paul",
+    "lastName": "Negoescu",
+    "roleId": "32e45e0f-430f-4ff7-9da0-e3e8ac99e127"
+}

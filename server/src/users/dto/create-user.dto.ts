@@ -1,11 +1,5 @@
-import { LoginDto } from './login.dto';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  Matches,
-  MinLength,
-} from 'class-validator';
+import { LoginDto } from '../../auth/dto/login.dto';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateUserDto extends LoginDto {
   @IsNotEmpty({ message: 'Please specify a first name.' })

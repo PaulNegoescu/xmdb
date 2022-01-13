@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma.service';
@@ -61,7 +61,13 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { roleId, ...dataWithoutRoleId } = createUserDto;
+    let { roleId, ...dataWithoutRoleId } = createUserDto;
+    if (!roleId) {
+      const role = await this.prisma.role.findFirst({
+        where: { name: 'user' },
+      });
+      roleId = role.id;
+    }
     const data = {
       ...dataWithoutRoleId,
       role: { connect: { id: roleId } },
@@ -69,9 +75,22 @@ export class UsersService {
 
     data.password = await this.hashPassword(data.password);
 
-    return this.prisma.user.create({
-      data,
-    });
+    try {
+      const result = await this.prisma.user.create({
+        data,
+      });
+      return result;
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        // The .code property can be accessed in a type-safe manner
+        if (e.code === 'P2002') {
+          throw new BadRequestException(
+            'An account with this email address already exists!',
+          );
+        }
+      }
+      throw e;
+    }
   }
 
   findAll() {
