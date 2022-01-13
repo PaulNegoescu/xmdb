@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma.service';
 import { User, Prisma } from '@prisma/client';
 import { randomBytes, scrypt, timingSafeEqual } from 'crypto';
+import { RegisterDto } from '../auth/dto/register.dto';
 
 @Injectable()
 export class UsersService {
@@ -60,14 +61,20 @@ export class UsersService {
     });
   }
 
+  async createDefaultUser(registerDto: RegisterDto): Promise<User> {
+    const role = await this.prisma.role.findFirst({
+      where: { name: 'user' },
+    });
+
+    return this.create({
+      ...registerDto,
+      roleId: role.id,
+    });
+  }
+
   async create(createUserDto: CreateUserDto): Promise<User> {
-    let { roleId, ...dataWithoutRoleId } = createUserDto;
-    if (!roleId) {
-      const role = await this.prisma.role.findFirst({
-        where: { name: 'user' },
-      });
-      roleId = role.id;
-    }
+    const { roleId, ...dataWithoutRoleId } = createUserDto;
+
     const data = {
       ...dataWithoutRoleId,
       role: { connect: { id: roleId } },

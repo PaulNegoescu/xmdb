@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { UsersService } from '../users/users.service';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -39,8 +39,8 @@ export class AuthService {
     };
   }
 
-  public async register(CreateUserDto: CreateUserDto) {
-    const user = await this.usersService.create(CreateUserDto);
+  public async register(registerDto: RegisterDto) {
+    const user = await this.usersService.createDefaultUser(registerDto);
     return this.login(user);
   }
 }
