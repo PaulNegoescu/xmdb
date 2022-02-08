@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id String @db.Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  name String @db.VarChar(255)
+  users User[]
+  createdAt DateTime? @db.Timestamp() @default(now())
+  updatedAt DateTime? @db.Timestamp() @default(now())
+
+  @@map("roles")
+}
+
+model User {
+  id    String @db.Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  email String @db.VarChar(255) @unique
+  firstName String @db.VarChar(255)
+  lastName String @db.VarChar(255)
+  roleId String @db.Uuid
+  role Role @relation(fields: [roleId], references: [id])
+  password String @db.VarChar(161)
+  createdAt DateTime? @db.Timestamp() @default(now())
+  updatedAt DateTime? @db.Timestamp() @default(now())
+
+  @@map("users")
+}
+
+model Product {
+  id String @db.Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  name String @db.VarChar(255)
+  description String @db.VarChar(255)
+  price String @db.VarChar(20)
+  active Boolean
+  currencty String @db.VarChar(20)
+  createdAt DateTime? @db.Timestamp() @default(now())
+  updatedAt DateTime? @db.Timestamp() @default(now())
+  // variants Product[]
+
+  @@map("products")
+}
+
+model Category {
+  id String @db.Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  active Boolean
+  name String @db.VarChar(255)
+  description String @db.VarChar(255)
+  createdAt DateTime? @db.Timestamp() @default(now())
+  updatedAt DateTime? @db.Timestamp() @default(now())
+
+  @@map("categories")
+}
+
+model Cart {
+  id String @db.Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  createdAt DateTime? @db.Timestamp() @default(now())
+  updatedAt DateTime? @db.Timestamp() @default(now())
+
+  @@map("carts")
+}
+
+model Trait {
+  id String @db.Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  createdAt DateTime? @db.Timestamp() @default(now())
+  updatedAt DateTime? @db.Timestamp() @default(now())
+
+  @@map("traits")
+}
+
+model ShippingAddress {
+  id String @db.Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  createdAt DateTime? @db.Timestamp() @default(now())
+  updatedAt DateTime? @db.Timestamp() @default(now())
+
+  @@map("shipping_addresses")
+}
+
+model OrderHistory {
+  id String @db.Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  createdAt DateTime? @db.Timestamp() @default(now())
+  updatedAt DateTime? @db.Timestamp() @default(now())
+
+  @@map("order_histories")
+}
+
+model Rating {
+  id String @db.Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  source String @db.VarChar(255)
+  value String @db.VarChar(20)
+  movieId String @db.Uuid
+  movie Movie @relation(fields: [movieId], references: [id])
+  createdAt DateTime? @db.Timestamp() @default(now())
+
+  @@map("ratings")
+}
+
+enum Type {
+  movie
+  series
+}
+
+model Movie {
+  id String @db.Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  title String @db.VarChar(255)
+  year String? @db.VarChar(20)
+  rated String? @db.VarChar(50)
+  released DateTime? @db.Timestamp() 
+  runtime Int? @db.SmallInt
+  genre String @db.VarChar(255)
+  director String?
+  writer String?
+  actors String?
+  plot String?
+  language String? @db.VarChar(255)
+  country String? @db.VarChar(255)
+  awards String?
+  poster String?
+  metascore Int? @db.SmallInt
+  imdbrating Float?
+  imdbvotes Int?
+  imdbid String @db.VarChar(10)
+  type Type? @default(movie)
+  dvd DateTime? @db.Timestamp() 
+  boxoffice Int?
+  production String?
+  website String?
+  totalseasons Int?
+  createdAt DateTime? @db.Timestamp() @default(now())
+  updatedAt DateTime? @db.Timestamp() @default(now())
+  ratings Rating[]
+
+  @@map("movies")
+}
